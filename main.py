@@ -4,6 +4,7 @@ import subprocess
 import time
 
 import influxdb_client
+import psutil
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 token = os.environ.get('INFLUXDB_TOKEN')
@@ -19,10 +20,14 @@ bucket = os.environ.get('INFLUXDB_BUCKET')
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
 start = 0
+INTERVAL = 5
+
+last_network = 0
+last_network_in = 0
+last_network_out = 0
 
 while True:
-    if time.time() - start < 5:
-        time.sleep(0.05)
+    if time.time() - start < INTERVAL:
         continue
     start = time.time()
     for host in hosts:
@@ -32,12 +37,18 @@ while True:
         if p.returncode == 1 and '0 received' in output:
             latency = 0.0
         elif p.returncode == 0 and '1 received' in output:
-            latency_pattern = r"rtt min\/avg\/max\/mdev = ([^\/]+)"
-            latency = float(re.findall(latency_pattern, output).pop())
+            latency = float(re.findall(r"rtt min/avg/max/mdev = ([^/]+)", output).pop())
         else:
             print(p.returncode)
             print(output)
             raise NotImplementedError('Unknown state')
-        point = {'measurement': "ping", 'tags': {'host': host}, 'fields': {'latency': latency}}
-        write_api.write(bucket=bucket, org=org, record=point)
-    time.sleep(2)
+        write_api.write(bucket=bucket, org=org,
+                        record={'measurement': "ping", 'tags': {'host': host}, 'fields': {'latency': latency}})
+
+    net = psutil.net_io_counters()
+    time_diff = time.time() - last_network
+    network_in = (net.bytes_recv - last_network_in) * 8 / (1024 ** 2 * time_diff)
+    network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
+    print(f'Network in: {network_in} Mbps, Network out: {network_out} Mbps')
+    write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
+                                                    'fields': {'in': network_in, 'out': network_out}})
