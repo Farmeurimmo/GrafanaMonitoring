@@ -45,9 +45,10 @@ while True:
         write_api.write(bucket=bucket, org=org,
                         record={'measurement': "ping", 'tags': {'host': host}, 'fields': {'latency': latency}})
 
-    global last_network, last_network_in, last_network_out
     net = psutil.net_io_counters()
     time_diff = time.time() - last_network
+    print(f'Time diff: {time_diff}')
+    print(f'Diff: {net.bytes_recv - last_network_in} {net.bytes_sent - last_network_out}')
     network_in = (net.bytes_recv - last_network_in) * 8 / (1024 ** 2 * time_diff)
     network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
     last_network = time.time()
