@@ -20,7 +20,7 @@ bucket = os.environ.get('INFLUXDB_BUCKET')
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
 start = 0
-INTERVAL = 5
+INTERVAL = 3
 
 last_network = 0
 last_network_in = 0
@@ -47,14 +47,11 @@ while True:
 
     net = psutil.net_io_counters()
     time_diff = time.time() - last_network
-    print(f'Time diff: {time_diff}')
-    print(f'Diff: {net.bytes_recv - last_network_in} {net.bytes_sent - last_network_out}')
     network_in = (net.bytes_recv - last_network_in) * 8 / (1024 ** 2 * time_diff)
     network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
-    last_network = time.time()
-    print(f'Network in: {network_in} Mbps, Network out: {network_out} Mbps')
     write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
                                                     'fields': {'in': round(network_in, 3),
                                                                'out': round(network_out, 3)}})
     last_network_in = net.bytes_recv
     last_network_out = net.bytes_sent
+    last_network = time.time()
