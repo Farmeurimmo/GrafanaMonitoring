@@ -18,7 +18,13 @@ bucket = os.environ.get('INFLUXDB_BUCKET')
 
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
+start = 0
+
 while True:
+    if time.time() - start < 5:
+        time.sleep(0.05)
+        continue
+    start = time.time()
     for host in hosts:
         p = subprocess.Popen(['ping', '-q', '-c', '1', '-W', '1', host], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
@@ -32,7 +38,6 @@ while True:
             print(p.returncode)
             print(output)
             raise NotImplementedError('Unknown state')
-        print(f'{host} latency: {latency}')
         point = {'measurement': "ping", 'tags': {'host': host}, 'fields': {'latency': latency}}
         write_api.write(bucket=bucket, org=org, record=point)
-        time.sleep(0.5)
+    time.sleep(2)
