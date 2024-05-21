@@ -51,7 +51,7 @@ while True:
     network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
     write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
                                                     'fields': {'in': round(network_in, 3),
-                                                               'out': round(network_out, 3)}})
+                                                               'out': round(-network_out, 3)}})
     last_network_in = net.bytes_recv
     last_network_out = net.bytes_sent
     last_network = time.time()
