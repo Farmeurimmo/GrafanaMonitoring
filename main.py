@@ -7,7 +7,7 @@ import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 token = os.environ.get('INFLUXDB_TOKEN')
-org = os.environ.get('INFLUXDB_URL')
+org = os.environ.get('INFLUXDB_ORG')
 url = os.environ.get('INFLUXDB_URL')
 
 hosts = os.environ.get('HOSTS_TO_PING').split(',')
