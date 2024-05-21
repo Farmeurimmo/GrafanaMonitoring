@@ -49,6 +49,9 @@ while True:
     time_diff = time.time() - last_network
     network_in = (net.bytes_recv - last_network_in) * 8 / (1024 ** 2 * time_diff)
     network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
+    last_network = time.time()
     print(f'Network in: {network_in} Mbps, Network out: {network_out} Mbps')
     write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
                                                     'fields': {'in': network_in, 'out': network_out}})
+    last_network_in = net.bytes_recv
+    last_network_out = net.bytes_sent
