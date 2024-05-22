@@ -28,6 +28,7 @@ last_network_out = 0
 
 while True:
     if time.time() - start < INTERVAL:
+        time.sleep(0.2)
         continue
     start = time.time()
     for host in hosts:
@@ -55,3 +56,4 @@ while True:
     last_network_in = net.bytes_recv
     last_network_out = net.bytes_sent
     last_network = time.time()
+    time.sleep(INTERVAL - (time.time() - start))
