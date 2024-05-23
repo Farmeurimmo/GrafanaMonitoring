@@ -49,10 +49,14 @@ while True:
     net = psutil.net_io_counters()
     time_diff = time.time() - last_network
     network_in = (net.bytes_recv - last_network_in) * 8 / (1024 ** 2 * time_diff)
-    network_out = (net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
+    network_out = -(net.bytes_sent - last_network_out) * 8 / (1024 ** 2 * time_diff)
+    if network_in < 0:
+        network_in *= -1
+    if network_out > 0:
+        network_out *= -1
     write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
-                                                    'fields': {'in': round(network_in, 3),
-                                                               'out': round(-network_out, 3)}})
+                                                    'fields': {'in': round(network_in, 4),
+                                                               'out': round(network_out, 4)}})
     last_network_in = net.bytes_recv
     last_network_out = net.bytes_sent
     last_network = time.time()
