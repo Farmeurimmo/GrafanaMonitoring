@@ -20,7 +20,7 @@ bucket = os.environ.get('INFLUXDB_BUCKET')
 write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
 start = 0
-INTERVAL = os.environ.get('INTERVAL')
+INTERVAL = float(os.environ.get('INTERVAL'))
 
 last_network = 0
 last_network_in = 0
