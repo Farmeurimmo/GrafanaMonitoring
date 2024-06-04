@@ -10,6 +10,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 token = os.environ.get('INFLUXDB_TOKEN')
 org = os.environ.get('INFLUXDB_ORG')
 url = os.environ.get('INFLUXDB_URL')
+hostname = os.environ.get('VPS_NAME')
 
 hosts = os.environ.get('HOSTS_TO_PING').split(',')
 
@@ -44,7 +45,7 @@ while True:
             print(output)
             raise NotImplementedError('Unknown state')
         write_api.write(bucket=bucket, org=org,
-                        record={'measurement': "ping", 'tags': {'host': host}, 'fields': {'latency': latency}})
+                        record={'measurement': "ping", 'tags': {'host': host, 'machine': hostname}, 'fields': {'latency': latency}})
 
     net = psutil.net_io_counters()
     time_diff = time.time() - last_network
@@ -54,7 +55,7 @@ while True:
         network_in *= -1
     if network_out > 0:
         network_out *= -1
-    write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost'},
+    write_api.write(bucket=bucket, org=org, record={'measurement': "network", 'tags': {'host': 'localhost', 'machine': hostname},
                                                     'fields': {'in': round(network_in, 4),
                                                                'out': round(network_out, 4)}})
     last_network_in = net.bytes_recv
