@@ -10,7 +10,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 token = os.environ.get('INFLUXDB_TOKEN')
 org = os.environ.get('INFLUXDB_ORG')
 url = os.environ.get('INFLUXDB_URL')
-hostname = os.environ.get('VPS_NAME')
+hostname = os.environ.get('HOSTNAME')
 
 hosts = os.environ.get('HOSTS_TO_PING').split(',')
 
