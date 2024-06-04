@@ -12,8 +12,8 @@ First, you need to build the image. I'm going to make an automated build later.
 git clone https://github.com/Farmeurimmo/GrafanaMonitoring.git && cd GrafanaMonitoring && sh build.sh
 ```
 
-Then, you need to choose the method, for example if you don't have an influxdb instance with grafana, use the *
-*All-in-one** method.
+Then, you need to choose the method, for example if you don't have an influxdb instance with grafana, use the 
+**All-in-one** method.
 If you already have an influxdb instance, use the **Just the monitor** method.
 
 ### All-in-one
