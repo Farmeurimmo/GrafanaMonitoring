@@ -45,7 +45,7 @@ while True:
             print(output)
             raise NotImplementedError('Unknown state')
         write_api.write(bucket=bucket, org=org,
-                        record={'measurement': "ping", 'tags': {'host': host, 'machine': hostname},
+                        record={'measurement': "ping", 'tags': {'machine': hostname},
                                 'fields': {'latency': latency}})
 
     net = psutil.net_io_counters()
@@ -56,11 +56,29 @@ while True:
         network_in *= -1
     if network_out > 0:
         network_out *= -1
+
     write_api.write(bucket=bucket, org=org,
-                    record={'measurement': "network", 'tags': {'host': 'localhost', 'machine': hostname},
+                    record={'measurement': "network", 'tags': {'machine': hostname},
                             'fields': {'in': round(network_in, 4),
                                        'out': round(network_out, 4)}})
     last_network_in = net.bytes_recv
     last_network_out = net.bytes_sent
     last_network = time.time()
+
+    # Get CPU usage
+    cpu_percent = psutil.cpu_percent(interval=None)
+
+    # Get RAM usage
+    memory_info = psutil.virtual_memory()
+    ram_percent = memory_info.percent
+
+    # Get disk usage
+    disk_info = psutil.disk_usage('/')
+    disk_percent = disk_info.percent
+    write_api.write(bucket=bucket, org=org,
+                    record={'measurement': "system", 'tags': {'machine': hostname},
+                            'fields': {'cpu_percent': cpu_percent,
+                                       'ram_percent': ram_percent,
+                                       'disk_percent': disk_percent}})
+
     time.sleep(INTERVAL - (time.time() - start))
