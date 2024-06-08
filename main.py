@@ -45,7 +45,7 @@ while True:
             print(output)
             raise NotImplementedError('Unknown state')
         write_api.write(bucket=bucket, org=org,
-                        record={'measurement': "ping", 'tags': {'machine': hostname},
+                        record={'measurement': "ping", 'tags': {'host': host, 'machine': hostname},
                                 'fields': {'latency': latency}})
 
     net = psutil.net_io_counters()
